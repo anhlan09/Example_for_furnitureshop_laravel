@@ -1,0 +1,1 @@
+# Example_for_furnitureshop_laravel
