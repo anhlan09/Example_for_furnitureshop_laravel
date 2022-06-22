@@ -12,10 +12,42 @@ class CategoryControllerWithRepos extends Controller
     //
  
 
-    public function index(){
-        
-    }
+    public function index()
+        {
+            $category = CategoryRepos::getAllCategory();
 
+            return view('projects_ki_1.category.index_category',
+                [
+                    'category' => $category,
+                ]);
+        }
+
+        public function create()
+        {
+            return view('projects_ki_1.category.new_category', [
+                    "category" => (object)[
+                        'category_id' => '',
+                        'name' => '',
+                    ]
+            ]);
+
+        }
+
+        public function store(Request $request)
+        {
+            $this->formValidate($request)->validate(); //shortcut
+
+            $category = (object)[
+                'name' => $request->input('name'),
+            ];
+
+            $newId = CategoryRepos::insert($category);
+
+
+            return redirect()
+                ->action('categoryController@index')
+                ->with('msg', 'New Category with id: '.$newId.' has been inserted');
+        }
 
     
 
