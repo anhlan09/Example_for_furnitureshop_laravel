@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Validator;
 class CategoryControllerWithRepos extends Controller
 {
     //
+ 
+
     public function edit($id){
         $category = CategoryRepos::getCategoryById($id);
 
