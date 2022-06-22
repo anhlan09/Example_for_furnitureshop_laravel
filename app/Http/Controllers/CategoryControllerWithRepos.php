@@ -10,64 +10,87 @@ use Illuminate\Support\Facades\Validator;
 class CategoryControllerWithRepos extends Controller
 {
     //
-    public function edit($id){
-        $classroom = ClassroomRepos::getClassroomById($id);
-        $teachers = TeacherRepos::getAllTeachers();
-        $selectedT = TeacherRepos::getTeachersByClassroomId($id);
+    public function index()
+    {
+    $category = CategoryRepos::getAllCategory();
 
-        return view('Classrooms.ClassroomRepos.update',
+    return view('furniture_shop.category.index',
+        [
+            'category' => $category,
+        ]);
+    }
+
+    public function create()
+    {
+        return view('furniture_shop.category.new', [
+                "category" => (object)[
+                    'category_id' => '',
+                    'name' => '',
+                ]
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $this->formValidate($request)->validate(); //shortcut
+
+        $category = (object)[
+            'name' => $request->input('name'),
+        ];
+
+        $newId = CategoryRepos::insert($category);
+
+
+        return redirect()
+            ->action('CategoryControllerWithRepos@index')
+            ->with('msg', 'New Category with id: '.$newId.' has been inserted');
+    }
+
+    public function edit($id){
+        $category = CategoryRepos::getCategoryById($id);
+
+        return view('furniture_shop.category.update',
             [
-                'classroom' => $classroom[0],
-                'teachers' => $teachers,
-                'selectedT' => $selectedT
+                'category' => $category[0]
             ]
         );
     }
 
     public function update(Request $request, $id){
-        if($id != $request->input('id')){
-            return redirect()->action('ClassroomControllerWithRepos@read');
+        if($id != $request->input('category_id')){
+            return redirect()->action('CategoryControllerWithRepos@index');
         }
 
         $this->formValidate($request)->validate();
 
-        $classroom = (object)[
-            'id' => $request->input('id'),
-            'nameClassroom' => $request->input('nameClassroom'),
-            'startDate' => $request->input('startDate'),
-            'size' => $request->input('size'),
+        $category = (object)[
+            'category_id' => $request->input('category_id'),
+            'name' => $request->input('name'),
         ];
 
-        ClassroomRepos::update($classroom);
-        $selectedT = $request->input('selectedT');
-        Classrooms_TeachersRepos::delete($classroom->id);
-        Classrooms_TeachersRepos::insert($classroom->id, $selectedT);
+        CategoryRepos::update($category);
 
-        return redirect()->action('ClassroomControllerWithRepos@read')
+        return redirect()
+            ->action('CategoryControllerWithRepos@index')
             ->with('msg', 'Update Successfully');
     }
 
     public function confirm($id){
-        $classroom = ClassroomRepos::getClassroomById($id);
-        $teachers = TeacherRepos::getTeachersByClassroomId($id);
+        $category = CategoryRepos::getCategoryById($id);
 
-        return view('Classrooms.ClassroomRepos.confirm',
+        return view('furniture_shop.category.confirm',
             [
-                'classroom' => $classroom[0],
-                'teachers' => $teachers
+                'category' => $category[0],
             ]
         );
     }
 
     public function destroy(Request $request, $id){
-        if($id != $request->input('id')){
-            return redirect()->action('ClassroomControllerWithRepos@read');
+        if($id != $request->input('category_id')){
+            return redirect()->action('CategoryControllerWithRepos@read');
         }
 
-        ClassroomRepos::deleteStudentsByClassroomId($id);
-        Classrooms_TeachersRepos::delete($id);
-        ClassroomRepos::delete($id);
-
+        CategoryRepos::delete($id);
 
         return redirect()->action('ClassroomControllerWithRepos@read')
             ->with('msg', 'Delete Successfully');
