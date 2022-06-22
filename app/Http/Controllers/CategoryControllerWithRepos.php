@@ -12,7 +12,9 @@ class CategoryControllerWithRepos extends Controller
     //
  
 
-
+    public function index(){
+        
+    }
 
 
     
